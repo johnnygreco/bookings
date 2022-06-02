@@ -3,12 +3,13 @@ package render
 import (
 	"bytes"
 	"fmt"
-	"github.com/johnnygreco/bookings/pkg/config"
-	"github.com/johnnygreco/bookings/pkg/models"
 	"log"
 	"net/http"
 	"path/filepath"
 	"text/template"
+
+	"github.com/johnnygreco/bookings/pkg/config"
+	"github.com/johnnygreco/bookings/pkg/models"
 )
 
 var functions = template.FuncMap{}
