@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/johnnygreco/bookings/pkg/config"
 	"github.com/johnnygreco/bookings/pkg/models"
 	"github.com/johnnygreco/bookings/pkg/render"
-	"net/http"
 )
 
 // The repository used by the handlers
@@ -31,7 +33,7 @@ func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
 	remoteIP := r.RemoteAddr
 	m.App.Session.Put(r.Context(), "remote_ip", remoteIP)
 
-	render.RenderTemplate(w, "home.page.html", &models.TemplateData{})
+	render.RenderTemplate(w, r, "home.page.html", &models.TemplateData{})
 }
 
 // About is the about page handler
@@ -43,7 +45,39 @@ func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
 
 	stringMap["remote_ip"] = remoteIP
 
-	render.RenderTemplate(w, "about.page.html", &models.TemplateData{
+	render.RenderTemplate(w, r, "about.page.html", &models.TemplateData{
 		StringMap: stringMap,
 	})
+}
+
+// Reservation renders the make a reservation page and displays form.
+func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
+	render.RenderTemplate(w, r, "make-reservation.page.html", &models.TemplateData{})
+}
+
+// Generals renders the room page.
+func (m *Repository) Generals(w http.ResponseWriter, r *http.Request) {
+	render.RenderTemplate(w, r, "generals.page.html", &models.TemplateData{})
+}
+
+// Majors renders the room page.
+func (m *Repository) Majors(w http.ResponseWriter, r *http.Request) {
+	render.RenderTemplate(w, r, "majors.page.html", &models.TemplateData{})
+}
+
+// Availability renders the search availablity page.
+func (m *Repository) Availability(w http.ResponseWriter, r *http.Request) {
+	render.RenderTemplate(w, r, "search-availability.page.html", &models.TemplateData{})
+}
+
+// PostAvailability renders the search availablity page.
+func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
+	start := r.Form.Get("start")
+	end := r.Form.Get("end")
+	w.Write([]byte(fmt.Sprintf("start date is %s and end date is %s", start, end)))
+}
+
+// Contact renders the search availablity page.
+func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
+	render.RenderTemplate(w, r, "contact.page.html", &models.TemplateData{})
 }
