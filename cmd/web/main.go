@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/johnnygreco/bookings/pkg/config"
-	"github.com/johnnygreco/bookings/pkg/handlers"
-	"github.com/johnnygreco/bookings/pkg/render"
+	"github.com/johnnygreco/bookings/internal/config"
+	"github.com/johnnygreco/bookings/internal/handlers"
+	"github.com/johnnygreco/bookings/internal/render"
 	"log"
 	"net/http"
 	"time"
