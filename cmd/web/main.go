@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/johnnygreco/bookings/internal/config"
+	"github.com/johnnygreco/bookings/internal/driver"
 	"github.com/johnnygreco/bookings/internal/handlers"
 	"github.com/johnnygreco/bookings/internal/helpers"
 	"github.com/johnnygreco/bookings/internal/models"
@@ -65,6 +66,13 @@ func run() error {
 	session.Cookie.Secure = app.InProduction
 
 	app.Session = session
+
+	// connect to database
+	log.Println("Connecting to database...")
+	db, err := driver.ConnectSQL("host=localhost port=5432 dbname=bookings user=johnnygreco password=")
+	if err != nil {
+		log.Fatal("cannot connect to database:", err)
+	}
 
 	tc, err := render.CreateTemplateCache()
 	if err != nil {
