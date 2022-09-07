@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/johnnygreco/bookings/internal/config"
 	"github.com/johnnygreco/bookings/internal/driver"
 	"github.com/johnnygreco/bookings/internal/forms"
@@ -49,14 +51,34 @@ func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
 
 // Reservation renders the make a reservation page and displays form.
 func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
-	var emptyReservation models.Reservation
+	res, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
+	if !ok {
+		helpers.ServerError(w, errors.New("cannot get reservation from session"))
+		return
+	}
+
+	room, err := m.DB.GetRoomByID(res.RoomID)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	res.Room.RoomName = room.RoomName
+
+	sd := res.StartDate.Format("2006-01-02")
+	ed := res.EndDate.Format("2006-01-02")
 
 	data := make(map[string]interface{})
-	data["reservation"] = emptyReservation
+	data["reservation"] = res
+
+	stringMap := make(map[string]string)
+	stringMap["start_date"] = sd
+	stringMap["end_date"] = ed
 
 	render.Template(w, r, "make-reservation.page.html", &models.TemplateData{
-		Form: forms.New(nil),
-		Data: data,
+		Form:      forms.New(nil),
+		Data:      data,
+		StringMap: stringMap,
 	})
 }
 
@@ -254,4 +276,27 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 	render.Template(w, r, "reservation-summary.page.html", &models.TemplateData{
 		Data: data,
 	})
+}
+
+func (m *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request) {
+
+	roomID, err := strconv.Atoi(chi.URLParam(r, "id"))
+
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	res, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
+	if !ok {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	res.RoomID = roomID
+
+	m.App.Session.Put(r.Context(), "reservation", res)
+
+	http.Redirect(w, r, "/make-reservation", http.StatusSeeOther)
+
 }
